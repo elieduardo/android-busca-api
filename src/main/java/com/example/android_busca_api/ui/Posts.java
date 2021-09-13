@@ -1,6 +1,8 @@
 package com.example.android_busca_api.ui;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.widget.TextView;
@@ -15,8 +17,18 @@ import com.android.volley.toolbox.Volley;
 import com.example.android_busca_api.R;
 
 import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import adapters.AlbumAdapter;
+import adapters.PostAdapter;
+import models.Album;
+import models.Post;
 
 public class Posts extends AppCompatActivity implements Response.Listener<JSONArray>, Response.ErrorListener{
+    private List<Post> posts = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,8 +46,20 @@ public class Posts extends AppCompatActivity implements Response.Listener<JSONAr
 
     @Override
     public void onResponse(JSONArray response) {
-        TextView tv = findViewById(R.id.conteudoPosts);
-        tv.setText(response.toString());
+        posts.clear();
+        try {
+            for (int i =0; i < response.length(); i++){
+                posts.add(new Post(response.getJSONObject(i)));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        RecyclerView rvPost = findViewById(R.id.rvPost);
+        PostAdapter adapter = new PostAdapter(posts);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
+        rvPost.setLayoutManager(linearLayoutManager);
+        rvPost.setAdapter(adapter);
     }
 
     private  void  getAPI(String metodo){

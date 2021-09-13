@@ -1,6 +1,8 @@
 package com.example.android_busca_api.ui;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.widget.TextView;
@@ -15,9 +17,18 @@ import com.android.volley.toolbox.Volley;
 import com.example.android_busca_api.R;
 
 import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import adapters.AlbumAdapter;
+import adapters.TodoAdapter;
+import models.Album;
+import models.Todo;
 
 public class Albuns extends AppCompatActivity implements Response.Listener<JSONArray>, Response.ErrorListener {
-
+    private List<Album> albuns = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,8 +44,20 @@ public class Albuns extends AppCompatActivity implements Response.Listener<JSONA
 
     @Override
     public void onResponse(JSONArray response) {
-        TextView tv = findViewById(R.id.conteudoAlbuns);
-        tv.setText(response.toString());
+        albuns.clear();
+        try {
+            for (int i =0; i < response.length(); i++){
+                albuns.add(new Album(response.getJSONObject(i)));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        RecyclerView rvAlbuns = findViewById(R.id.rvAlbuns);
+        AlbumAdapter adapter = new AlbumAdapter(albuns);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
+        rvAlbuns.setLayoutManager(linearLayoutManager);
+        rvAlbuns.setAdapter(adapter);
     }
 
     private  void  getAPI(String metodo){
