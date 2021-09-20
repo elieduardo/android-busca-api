@@ -23,48 +23,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 import adapters.AlbumAdapter;
+import adapters.PostAdapter;
 import adapters.TodoAdapter;
 import models.Album;
 import models.Todo;
+import presenters.AlbumPresenter;
 
-public class Albuns extends AppCompatActivity implements Response.Listener<JSONArray>, Response.ErrorListener {
-    private List<Album> albuns = new ArrayList<>();
+public class Albuns extends AppCompatActivity{
+    AlbumPresenter presenter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_albuns);
         getSupportActionBar().hide();
-        getAPI("albums");
+        presenter = new AlbumPresenter(this);
+        presenter.getAPIAlbuns();
     }
 
-    @Override
-    public void onErrorResponse(VolleyError error) {
-        Toast.makeText(getApplicationContext(), "erro: " + error.toString(), Toast.LENGTH_LONG).show();
-    }
 
-    @Override
-    public void onResponse(JSONArray response) {
-        albuns.clear();
-        try {
-            for (int i =0; i < response.length(); i++){
-                albuns.add(new Album(response.getJSONObject(i)));
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
+    public void preparaRecicleView(AlbumAdapter adapter){
         RecyclerView rvAlbuns = findViewById(R.id.rvAlbuns);
-        AlbumAdapter adapter = new AlbumAdapter(albuns);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
         rvAlbuns.setLayoutManager(linearLayoutManager);
         rvAlbuns.setAdapter(adapter);
     }
 
-    private  void  getAPI(String metodo){
-        RequestQueue queue = Volley.newRequestQueue(this);
-        //
-        JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, "https://jsonplaceholder.typicode.com/" + metodo, null,
-                this, this);
-        queue.add(request);
-    };
+
 }

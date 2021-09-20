@@ -26,9 +26,11 @@ import adapters.AlbumAdapter;
 import adapters.PostAdapter;
 import models.Album;
 import models.Post;
+import presenters.PostPresenter;
 
-public class Posts extends AppCompatActivity implements Response.Listener<JSONArray>, Response.ErrorListener{
-    private List<Post> posts = new ArrayList<>();
+public class Posts extends AppCompatActivity{
+
+    PostPresenter presenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,36 +38,16 @@ public class Posts extends AppCompatActivity implements Response.Listener<JSONAr
         setContentView(R.layout.activity_posts);
 
         getSupportActionBar().hide();
-        getAPI("posts");
+
+        presenter = new PostPresenter(this);
+        presenter.getAPIPosts();
     }
 
-    @Override
-    public void onErrorResponse(VolleyError error) {
-        Toast.makeText(getApplicationContext(), "erro: " + error.toString(), Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void onResponse(JSONArray response) {
-        posts.clear();
-        try {
-            for (int i =0; i < response.length(); i++){
-                posts.add(new Post(response.getJSONObject(i)));
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
+    public void preparaRecicleView(PostAdapter adapter){
         RecyclerView rvPost = findViewById(R.id.rvPost);
-        PostAdapter adapter = new PostAdapter(posts);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
         rvPost.setLayoutManager(linearLayoutManager);
         rvPost.setAdapter(adapter);
     }
 
-    private  void  getAPI(String metodo){
-        RequestQueue queue = Volley.newRequestQueue(this);
-        JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, "https://jsonplaceholder.typicode.com/" + metodo, null,
-                this, this);
-        queue.add(request);
-    };
 }
